@@ -1,74 +1,43 @@
 import Book from '#models/book'
 import type { HttpContext } from '@adonisjs/core/http'
-import { createBookValidator } from '#validators/book'
 
 export default class BooksController {
-
-  // LISTAR
-  async index() {
+  public async index({}: HttpContext) {
     return await Book.all()
   }
 
-  // CRIAR
-  async store({ request, response }: HttpContext) {
-    const data = await request.validateUsing(createBookValidator)
+  public async store({ request }: HttpContext) {
+    const data = request.only([
+      'title', 'isbn', 'author', 'publisher', 'publication_year',
+      'edition', 'pages', 'category', 'quantity', 'shelf_location'
+    ])
 
-    const book = await Book.create(data)
-    return response.created(book)
+    return await Book.create(data)
   }
 
-  // DETALHAR
-  async show({ params }: HttpContext) {
+  public async show({ params }: HttpContext) {
     return await Book.findOrFail(params.id)
   }
 
-  // ATUALIZAR
-  async update({ params, request }: HttpContext) {
+  public async update({ params, request }: HttpContext) {
     const book = await Book.findOrFail(params.id)
-
-    const data = request.only([
-      'title',
-      'publisher',
-      'publicationYear',
-      'edition',
-      'pages',
-      'category',
-      'totalCopies',
-      'shelfLocation'
-    ])
-
+    const data = request.all()
     book.merge(data)
     await book.save()
-
     return book
   }
 
-  // EXCLUIR
-  async destroy({ params, response }: HttpContext) {
+  public async destroy({ params }: HttpContext) {
     const book = await Book.findOrFail(params.id)
     await book.delete()
-
-    return response.noContent()
+    return { message: 'Livro removido.' }
   }
-
-  async search({ request }: HttpContext) {
-  const { title, author, isbn, category } = request.qs()
-
-  const query = Book.query()
-
-  if (title) {
-    query.whereILike('title', `%${title}%`)
+  
+    async search({ request }: HttpContext) {
+    const term = request.input('q')
+    return Book.query()
+      .where('title', 'like', `%${term}%`)
+      .orWhere('author', 'like', `%${term}%`)
+      .orWhere('isbn', 'like', `%${term}%`)
   }
-
-  if (isbn) {
-    query.where('isbn', isbn)
-  }
-
-  if (category) {
-    query.whereILike('category', `%${category}%`)
-  }
-
-  return await query
-}
-
 }

@@ -3,3 +3,4 @@ import router from '@adonisjs/core/services/router'
 
 router.resource('books', BooksController)
 router.get('books/search', [BooksController, 'search'])
+

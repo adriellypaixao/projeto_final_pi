@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 
 export default class Book extends BaseModel {
@@ -12,14 +11,17 @@ export default class Book extends BaseModel {
   declare isbn: string
 
   @column()
+  declare author: string
+
+  @column()
   declare publisher: string
 
   @column()
-  declare publicationYear: number
+  declare publication_year: number
 
   @column()
-  declare edition: string
-
+  declare edition: number
+  
   @column()
   declare pages: number
 
@@ -27,17 +29,8 @@ export default class Book extends BaseModel {
   declare category: string
 
   @column()
-  declare totalCopies: number
+  declare quantity: number
 
   @column()
-  declare availableCopies: number
-
-  @column()
-  declare shelfLocation: string
-
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
+  declare shelf_location: string
 }
